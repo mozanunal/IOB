@@ -1,7 +1,8 @@
 from flask import Flask, render_template, redirect, jsonify, session, url_for
 from flask.globals import request
 from flask_mysqldb import MySQL
-import os
+import pyowm, json, os, time
+
 
 
 ## config
@@ -13,7 +14,7 @@ app.config['MYSQL_PASSWORD'] = '1a8d1617ae69a5ece240e42cdd0bdc3494f2a7e8d0202bd6
 app.config['MYSQL_DB'] = 'iob'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
-OPEN_WEATHER_TOKEN = '98dbc45494eae862db0ce92a2fc87e09'
+OWM_Key = '98dbc45494eae862db0ce92a2fc87e09'
 
 mysql = MySQL()
 mysql.init_app(app)
@@ -60,7 +61,12 @@ def device():
         GROUP BY keyName)'''.format(device['deviceId'])
         cur.execute(sql1)
         devicesInfo = cur.fetchall()
-        return render_template('device.html', devicesInfo = devicesInfo)
+        labels = ["8:00","9:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"]
+        values = [6,9,8,10,6,4,7,2,5,4]
+        labels2 = ["ReceivedUV", "Normal", "Danger"]
+        values2 = [80,70,20]
+        colors2 = [ "#FDB45C", "#46BFBD","#F7464A" ]
+        return render_template('device.html', devicesInfo = devicesInfo, values=values, labels=labels, set=zip(values2, labels2, colors2))
     else:
         return render_template('login.html')
 
@@ -77,12 +83,35 @@ def beaches():
         return render_template('login.html')
 
 #beaches
-@app.route("/beach/<UUID>", methods=['GET'])
-def beach(UUID):
-    if 'userUUID' in session:
-        return render_template('beach.html')#, beach=beach)
-    else:
-        return render_template('login.html')
+@app.route("/beach/<UUID>/we", methods=['GET'])
+def beach_we(UUID):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, name, latitude, longitude FROM beach WHERE UUID = '{}' ".format(UUID))
+    beach = cur.fetchone()
+    latitude = beach['latitude']
+    longitude = beach['longitude']
+    owm = pyowm.OWM('98dbc45494eae862db0ce92a2fc87e09')
+    weather = owm.weather_at_coords(latitude,longitude)
+    data = json.loads( weather.to_JSON())
+    #data['ozone']=owm.ozone_around_coords(latitude,longitude).get_du_value()
+    data['latitude'] = latitude
+    data['longitude'] = longitude
+    data['name'] = beach['name']
+    return jsonify(data)
+
+#beaches
+@app.route("/beach/<UUID>/uv", methods=['GET'])
+def beach_uv(UUID):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, name, latitude, longitude FROM beach WHERE UUID = '{}' ".format(UUID))
+    beach = cur.fetchone()
+    latitude = beach['latitude']
+    longitude = beach['longitude']
+    owm = pyowm.OWM('98dbc45494eae862db0ce92a2fc87e09')
+    print latitude,longitude, "9999999999999999999999999999999"
+    uv = owm.uvindex_around_coords(latitude,longitude)
+    print uv.to_JSON()
+    return str(uv)
 
 ############Actions####################3
 
@@ -115,7 +144,13 @@ def logout():
 
 @app.route("/rest", methods=['POST'])
 def rest():
-    return "selaleke"
+    content = request.json
+    UUID = content.get('UUID') 
+    dataArr = content.get('data') 
+    for data in dataArr:
+        print "****",data[0],data[1]
+    print UUID
+    return "Success"
 
 
 ################################################################
@@ -126,9 +161,10 @@ def rest():
 
 @app.route("/chart")
 def chart():
-    labels = ["January","February","March","April","May","June","July","August"]
-    values = [10,9,8,7,6,4,7,8]
-    return render_template('chart.html', values=values, labels=labels)
+    labels2 = ["ReceivedUV", "Normal", "Danger"]
+    values2 = [80,70,20]
+    colors2 = [ "#FDB45C", "#46BFBD","#F7464A" ]
+    return render_template('chart.html', set=zip(values2, labels2, colors2))
 
 
 #main
