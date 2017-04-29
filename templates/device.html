@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="container">
+    <div class="container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Value</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for info in devicesInfo %}
+            <tr>
+                <td>-</td>
+                <td>{{ info.keyName }}</td>
+                <td>{{ info.value }}</td>
+                <td> <a href=www.google.com>details</a> </td>
+            </tr>
+            {% else %}
+            <em>Unbelievable.  No entries here so far</em>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}

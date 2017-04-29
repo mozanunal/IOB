@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="container">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3>User Profile</h3>
+            </div>
+            <ul class="list-group">
+            <li class="list-group-item">Name: {{ userInfo.name }} </li>
+            <li class="list-group-item">Surname: {{ userInfo.surName }}</li>
+            <li class="list-group-item">Mail: {{ userInfo.email }}</li>
+            <li class="list-group-item"> {{ userInfo.userType }}</li>
+            </ul>
+            <form action="device">
+                <input type="submit" value="Go to my status" />
+            </form>
+            <form action="beaches">
+                <input type="submit" value="Go to beaches" />
+            </form>
+        </div>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{
+    "remotePath": "./IOB",
+    "host": "207.154.195.207",
+    "username": "root",
+    "password": "Nasa2017",
+    "port": 22,
+    "secure": false,
+    "protocol": "sftp",
+    "uploadOnSave": true,
+    "passive": false,
+    "debug": false,
+    "privateKeyPath": null,
+    "passphrase": null,
+    "ignore": [
+        ".vscode",
+        ".git",
+        "\\.DS_Store"
+    ]
+}
