@@ -82,6 +82,13 @@ def beaches():
     else:
         return render_template('login.html')
 
+@app.route("/beach/<UUID>", methods=['GET'])
+def beach(UUID):
+    if 'userUUID' in session:
+        return render_template('beach.html')
+    else:
+        return render_template('login.html')
+
 #beaches
 @app.route("/beach/<UUID>/we", methods=['GET'])
 def beach_we(UUID):
